@@ -2,7 +2,7 @@
 #include "spdlog/spdlog.h"
 #include <boost/interprocess/detail/segment_manager_helper.hpp>
 #include <boost/interprocess/smart_ptr/shared_ptr.hpp>
-#include "linux/bpf.h"
+#include "bpf_defs.h"
 using namespace bpftime;
 
 static bool is_good_update_flag(uint64_t flags)

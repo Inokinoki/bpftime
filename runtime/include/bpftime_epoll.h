@@ -50,6 +50,36 @@
 #define		BPF_K		0x00 //https://github.com/torvalds/linux/blob/2ef5971ff345d3c000873725db555085e0131961/include/uapi/linux/bpf_common.h#L12
 #define		BPF_JMP		0x05
 #define BPF_EXIT	0x90	/* function return */
+
+/* BPF map update flags */
+#define BPF_ANY		0 /* create new element or update existing */
+#define BPF_NOEXIST	1 /* create new element if it didn't exist */
+#define BPF_EXIST	2 /* update existing element */
+#define BPF_F_LOCK	4 /* spin_lock-ed map_lookup/map_update */
+
+/* BPF map flags */
+#define BPF_F_NO_PREALLOC	(1U << 0)
+#define BPF_F_NO_COMMON_LRU	(1U << 1)
+#define BPF_F_NUMA_NODE		(1U << 2)
+#define BPF_F_RDONLY		(1U << 3)
+#define BPF_F_WRONLY		(1U << 4)
+#define BPF_F_STACK_BUILD_ID	(1U << 5)
+#define BPF_F_ZERO_SEED		(1U << 6)
+#define BPF_F_RDONLY_PROG	(1U << 7)
+#define BPF_F_WRONLY_PROG	(1U << 8)
+#define BPF_F_CLONE		(1U << 9)
+#define BPF_F_MMAPABLE		(1U << 10)
+#define BPF_F_PRESERVE_ELEMS	(1U << 11)
+#define BPF_F_INNER_MAP		(1U << 12)
+
+/* BPF stack trace flags */
+#define BPF_F_USER_STACK	(1ULL << 8)
+#define BPF_F_FAST_STACK_CMP	(1ULL << 9)
+#define BPF_F_REUSE_STACKID	(1ULL << 10)
+#define BPF_F_USER_BUILD_ID	(1ULL << 11)
+
+/* Flags for BPF_FUNC_get_stackid helper */
+#define BPF_F_SKIP_FIELD_MASK	0xffULL
 union epoll_data {
            void     *ptr;
            int       fd;

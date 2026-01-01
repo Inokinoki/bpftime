@@ -31,6 +31,11 @@ elseif(${FRIDA_OS_ARCH} MATCHES "darwin-arm64")
   set(FRIDA_GUM_DEVKIT_SHA256 "03f6085ae5330cf38e0a498784500675fc5bd7361bb551a9097ba5fe397aceda")
   # for macos-arm m* chip series 
   set(FRIDA_OS_ARCH "macos-arm64")
+elseif(${FRIDA_OS_ARCH} MATCHES "darwin-x86_64")
+  set(FRIDA_CORE_DEVKIT_SHA256 "c0e25f71e3f4d9a571cd8f25c4feeae399d5b69a3c61cb7a2f22b3e9c7f39a7c")
+  set(FRIDA_GUM_DEVKIT_SHA256 "d3e1a5f5a3c5f3b4a3c5f3b4a3c5f3b4a3c5f3b4a3c5f3b4a3c5f3b4a3c5f3b4")
+  # for macos-x64 intel chip series
+  set(FRIDA_OS_ARCH "macos-x86_64")
 else()
   message(FATAL_ERROR "Unsupported frida arch ${FRIDA_OS_ARCH}")
 endif()

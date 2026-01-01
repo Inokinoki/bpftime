@@ -3,7 +3,7 @@
  * Copyright (c) 2022, eunomia-bpf org
  * All rights reserved.
  */
-#include "linux/bpf.h"
+#include "bpf_defs.h"
 #include "spdlog/spdlog.h"
 #include <bpf_map/userspace/var_hash_map.hpp>
 #include <algorithm>

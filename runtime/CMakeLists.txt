@@ -221,27 +221,40 @@ if(APPLE)
   set(EXTRA_LIBS ${COCOA_LIBRARY} ${FOUNDATION_LIBRARY} ${APPKIT_LIBRARY} ${COREF_LIBRARY} ${RESOLV_LIBRARY})
 endif()
 
+# Set platform-specific link libraries for runtime
+if(APPLE)
+  set(RUNTIME_PLATFORM_LIBS -lpthread -lm -lz)
+else()
+  set(RUNTIME_PLATFORM_LIBS -lpthread -lm -ldl -lz)
+endif()
+
 if(${BPFTIME_BUILD_WITH_LIBBPF})
-  target_link_libraries(${PROJECT_NAME}
-    PUBLIC
-    ${LIBBPF_LIBRARIES}
-    ${FRIDA_GUM_INSTALL_DIR}/libfrida-gum.a
-    -lpthread
-    -lm
-    -ldl
-    -lz
-    -lelf
-    bpftime_base_attach_impl
-    ${EXTRA_LIBS}
-  )
+  if(APPLE)
+    # libbpf is not available on macOS, but the build config might still be set
+    message(WARNING "libbpf is not available on macOS, ignoring BPFTIME_BUILD_WITH_LIBBPF")
+    target_link_libraries(${PROJECT_NAME}
+      PUBLIC
+      ${FRIDA_GUM_INSTALL_DIR}/libfrida-gum.a
+      ${RUNTIME_PLATFORM_LIBS}
+      bpftime_base_attach_impl
+      ${EXTRA_LIBS}
+    )
+  else()
+    target_link_libraries(${PROJECT_NAME}
+      PUBLIC
+      ${LIBBPF_LIBRARIES}
+      ${FRIDA_GUM_INSTALL_DIR}/libfrida-gum.a
+      ${RUNTIME_PLATFORM_LIBS}
+      -lelf
+      bpftime_base_attach_impl
+      ${EXTRA_LIBS}
+    )
+  endif()
 else()
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
     ${FRIDA_GUM_INSTALL_DIR}/libfrida-gum.a
-    -lpthread
-    -lm
-    -ldl
-    -lz
+    ${RUNTIME_PLATFORM_LIBS}
     bpftime_base_attach_impl
     ${EXTRA_LIBS}
   )

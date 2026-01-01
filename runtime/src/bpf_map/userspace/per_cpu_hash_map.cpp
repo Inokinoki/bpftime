@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 #include "bpf_map/map_common_def.hpp"
-#include "linux/bpf.h"
+#include "bpf_defs.h"
 #include "spdlog/fmt/bin_to_hex.h"
 #include "spdlog/spdlog.h"
 #include <algorithm>

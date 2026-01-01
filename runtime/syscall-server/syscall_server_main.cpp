@@ -4,17 +4,21 @@
  * All rights reserved.
  */
 #include "syscall_context.hpp"
-#if defined(__aarch64__)
-#include <asm-generic/unistd.h>
-#else
-#include <asm/unistd_64.h>
+#if __linux__
+  #if defined(__aarch64__)
+  #include <asm-generic/unistd.h>
+  #else
+  #include <asm/unistd_64.h>
+  #endif
+  #include "linux/bpf.h"
+  #include <asm-generic/errno-base.h>
+#elif __APPLE__
+  #include <sys/syscall.h>
+  #include "bpftime_epoll.h"
+  using namespace bpftime_epoll;
 #endif
 #include <boost/interprocess/exceptions.hpp>
 #include <cstdio>
-#if __linux__
-#include "linux/bpf.h"
-#include <asm-generic/errno-base.h>
-#endif
 #include <cstdlib>
 #include <cstring>
 #include <spdlog/spdlog.h>

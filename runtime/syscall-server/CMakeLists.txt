@@ -14,21 +14,34 @@ add_library(bpftime-syscall-server SHARED
 # Ensure VM compat libraries are linked (once) via the runtime library instead of duplicating at server
 if(${BPFTIME_UBPF_JIT})
   add_dependencies(bpftime-syscall-server bpftime_ubpf_vm)
-  target_link_options(bpftime-syscall-server PUBLIC "-Wl,--whole-archive" "$<TARGET_FILE:bpftime_ubpf_vm>" "-Wl,--no-whole-archive")
+  if(APPLE)
+    target_link_options(bpftime-syscall-server PUBLIC "-Wl,-force_load,$<TARGET_FILE:bpftime_ubpf_vm>")
+  else()
+    target_link_options(bpftime-syscall-server PUBLIC "-Wl,--whole-archive" "$<TARGET_FILE:bpftime_ubpf_vm>" "-Wl,--no-whole-archive")
+  endif()
   target_link_libraries(bpftime-syscall-server PUBLIC bpftime_ubpf_vm)
 endif()
 
 if(${BPFTIME_LLVM_JIT})
   add_dependencies(bpftime-syscall-server bpftime_llvm_vm llvmbpf_vm)
-  target_link_options(bpftime-syscall-server PUBLIC "-Wl,--whole-archive" "$<TARGET_FILE:bpftime_llvm_vm>" "-Wl,--no-whole-archive")
+  if(APPLE)
+    target_link_options(bpftime-syscall-server PUBLIC "-Wl,-force_load,$<TARGET_FILE:bpftime_llvm_vm>")
+  else()
+    target_link_options(bpftime-syscall-server PUBLIC "-Wl,--whole-archive" "$<TARGET_FILE:bpftime_llvm_vm>" "-Wl,--no-whole-archive")
+  endif()
   target_link_libraries(bpftime-syscall-server PUBLIC bpftime_llvm_vm)
+endif()
+
+# Set platform-specific link libraries
+if(APPLE)
+  set(SYSCALL_SERVER_PLATFORM_LIBS -lpthread -lm)
+else()
+  set(SYSCALL_SERVER_PLATFORM_LIBS -lpthread -lm -ldl)
 endif()
 
 target_link_libraries(bpftime-syscall-server PUBLIC
     runtime
-    -lpthread
-    -lm
-    -ldl
+    ${SYSCALL_SERVER_PLATFORM_LIBS}
     spdlog::spdlog)
 
 add_dependencies(bpftime-syscall-server spdlog::spdlog)

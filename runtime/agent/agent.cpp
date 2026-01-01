@@ -79,6 +79,7 @@ syscall_hooker_func_t orig_hooker;
 
 extern "C" void bpftime_agent_main(const gchar *data, gboolean *stay_resident);
 
+#if __linux__
 extern "C" int bpftime_hooked_main(int argc, char **argv, char **envp)
 {
 	int stay_resident = 0;
@@ -101,6 +102,17 @@ extern "C" int __libc_start_main(int (*main)(int, char **, char **), int argc,
 	return orig(bpftime_hooked_main, argc, argv, init, fini, rtld_fini,
 		    stack_end);
 }
+#elif __APPLE__
+// On macOS, we use a different mechanism for initialization
+// The dyld interposing mechanism or constructor attributes are used instead
+static __attribute__((constructor)) void bpftime_macos_init(void)
+{
+	// On macOS, we always use Frida-style injection
+	// LD_PRELOAD equivalent (DYLD_INSERT_LIBRARIES) doesn't hook main the same way
+	gboolean stay_resident = FALSE;
+	bpftime_agent_main("", &stay_resident);
+}
+#endif
 static void sig_handler_sigusr1_detach(int sig)
 {
 	SPDLOG_INFO("Detaching..");

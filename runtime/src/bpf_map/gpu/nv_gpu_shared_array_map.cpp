@@ -2,7 +2,7 @@
 #include "bpftime_shm.hpp"
 #include "bpftime_shm_internal.hpp"
 #include "cuda.h"
-#include "linux/bpf.h"
+#include "bpf_defs.h"
 #include "spdlog/spdlog.h"
 #include <cerrno>
 #include <cstdint>

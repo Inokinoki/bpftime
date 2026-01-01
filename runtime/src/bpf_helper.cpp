@@ -5,7 +5,7 @@
  */
 #include "bpf_attach_ctx.hpp"
 #include "handler/map_handler.hpp"
-#include "linux/bpf.h"
+#include "bpf_defs.h"
 #include <algorithm>
 #include <stdexcept>
 #include <system_error>
@@ -137,15 +137,28 @@ static void segv_read_handler(int sig, siginfo_t *siginfo, void *ctx)
 	} else if (status_probe_read == PROBE_STATUS::RUNNING_NO_ERROR) {
 		// set status to error
 		auto uctx = (ucontext_t *)ctx;
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined(__APPLE__)
+  #if defined(__x86_64__)
+		uctx->uc_mcontext->__ss.__rip = (uint64_t)&jump_point_read;
+  #elif defined(__aarch64__)
+		uctx->uc_mcontext->__ss.__pc = (uint64_t)&jump_point_read;
+  #else
+    #error "Unsupported macOS architecture"
+  #endif
+#elif defined(__linux__)
+  #if defined(__x86_64__) || defined(_M_X64)
 		auto *ip = (greg_t *)(&uctx->uc_mcontext.gregs[REG_RIP]);
-#elif defined(__aarch64__) || defined(_M_ARM64)
+		*ip = (greg_t)&jump_point_read;
+  #elif defined(__aarch64__) || defined(_M_ARM64)
 		auto *ip = (greg_t *)(&uctx->uc_mcontext.pc);
+		*ip = (greg_t)&jump_point_read;
+  #else
+    #error "Unsupported Linux architecture"
+  #endif
 #else
-#error "Unsupported architecture"
+  #error "Unsupported platform"
 #endif
 		status_probe_read = PROBE_STATUS::RUNNING_ERROR;
-		*ip = (greg_t)&jump_point_read;
 	}
 }
 #endif
@@ -223,15 +236,28 @@ static void segv_write_handler(int sig, siginfo_t *siginfo, void *ctx)
 	} else if (status_probe_write == PROBE_STATUS::RUNNING_NO_ERROR) {
 		// set status to error
 		auto uctx = (ucontext_t *)ctx;
-#if defined(__x86_64__) || defined(_M_X64)
+#if defined(__APPLE__)
+  #if defined(__x86_64__)
+		uctx->uc_mcontext->__ss.__rip = (uint64_t)&jump_point_write;
+  #elif defined(__aarch64__)
+		uctx->uc_mcontext->__ss.__pc = (uint64_t)&jump_point_write;
+  #else
+    #error "Unsupported macOS architecture"
+  #endif
+#elif defined(__linux__)
+  #if defined(__x86_64__) || defined(_M_X64)
 		auto *ip = (greg_t *)(&uctx->uc_mcontext.gregs[REG_RIP]);
-#elif defined(__aarch64__) || defined(_M_ARM64)
+		*ip = (greg_t)&jump_point_write;
+  #elif defined(__aarch64__) || defined(_M_ARM64)
 		auto *ip = (greg_t *)(&uctx->uc_mcontext.pc);
+		*ip = (greg_t)&jump_point_write;
+  #else
+    #error "Unsupported Linux architecture"
+  #endif
 #else
-#error "Unsupported architecture"
+  #error "Unsupported platform"
 #endif
 		status_probe_write = PROBE_STATUS::RUNNING_ERROR;
-		*ip = (greg_t)&jump_point_write;
 	}
 }
 #endif

@@ -34,7 +34,13 @@ public:
 
     void spin_lock() {
         while(lock.load(std::memory_order_relaxed) || lock.exchange(1, std::memory_order_acquire)){
+#if defined(__x86_64__) || defined(__i386__)
+                __asm__ __volatile__ ("pause");
+#elif defined(__aarch64__) || defined(__arm__)
                 __asm__ __volatile__ ("yield");
+#else
+                // Generic fallback - no pause/yield hint
+#endif
         }
     }
 
